@@ -41,7 +41,7 @@ def analyze_spending(user_input):
         model="benedict/linkbricks-llama3.1-korean:8b",
         prompt=f"{system_prompt}\n사용자 입력: {user_input}"
     )
-    return response['response']
+    return response.get('response', '분석 결과를 가져오는 데 실패했습니다.')
 
 # 미션 진행
 if option == '미션 진행':
@@ -83,8 +83,15 @@ elif option == '친환경 미션':
         '장바구니 사용': '20회 중 15회 완료'
     }
     for mission, progress in eco_missions.items():
+        try:
+            current = int(progress.split(' ')[0].replace('회', ''))
+            total = int(progress.split(' ')[2].replace('회', ''))
+            ratio = min(1, current / total)
+        except (IndexError, ValueError, ZeroDivisionError):
+            ratio = 0
+        
         st.write(f'**{mission}**: {progress}')
-        st.progress(int(progress.split(' ')[0].replace('회', '')) / int(progress.split(' ')[2].replace('회', '')))
+        st.progress(ratio)
 
 # 소비 리포트 시각화
 elif option == '소비 리포트':
