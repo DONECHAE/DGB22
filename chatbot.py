@@ -3,6 +3,10 @@ import pandas as pd
 import ollama
 import matplotlib.pyplot as plt
 
+# Ollama 클라이언트 설정 (0.0.0.0 바인딩)
+OLLAMA_HOST = "http://0.0.0.0:11434"
+client = ollama.Client(host=OLLAMA_HOST)
+
 # Title
 st.title('소비TI 기반 ESG 금융 게임 플랫폼')
 
@@ -12,7 +16,7 @@ option = st.sidebar.selectbox('선택하세요', ['미션 진행', '소비 분�
 
 # 사용자 텍스트 기반 소비 데이터 입력
 st.subheader('소비 패턴 분석')
-user_input = st.text_area('최근 소비 내역을 자유롭게 작성해주세요. (예: 지난달에는 식비로 30만원, 교통비로 10만원을 사용했습니다. , 최대한 자세히 적어주세요!!)')
+user_input = st.text_area('최근 소비 내역을 자유롭게 작성해주세요. (예: 지난달에는 식비로 30만원, 교통비로 10만원을 사용했습니다. 최대한 자세히 적어주세요!)')
 submit = st.button('전송')
 
 # 시스템 프롬프트 불러오기
@@ -39,25 +43,26 @@ def load_system_prompt():
 def analyze_spending(user_input):
     system_prompt = load_system_prompt()
     try:
-        response = ollama.generate(
+        response = client.generate(
             model="benedict/linkbricks-llama3.1-korean:8b",
             prompt=f"{system_prompt}\n사용자 입력: {user_input}",
         )
         return response.get('response', '분석 결과를 가져오는 데 실패했습니다.')
     except Exception as e:
-        return f'오류 발생: {str(e)}'
+        return f'🔴 서버 오류 발생: {str(e)}'
 
 # 전송 버튼 클릭 시 분석 실행
 if submit and user_input:
-    mission = analyze_spending(user_input)
-    st.write(f'AI 분석 미션: **{mission}**')
+    with st.spinner('분석 중...'):
+        mission = analyze_spending(user_input)
+        st.write(f'**AI 분석 미션:**\n{mission}')
 
 # 미션 진행
 if option == '미션 진행':
     st.subheader('🌟 현재 미션')
     if user_input:
         mission = analyze_spending(user_input)
-        st.write(f'AI 분석 미션: **{mission}**')
+        st.write(f'**AI 분석 미션:**\n{mission}')
     else:
         st.write('소비 내역을 입력해주세요.')
 
