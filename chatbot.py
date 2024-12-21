@@ -38,15 +38,11 @@ def load_system_prompt():
 # Ollama 소비 패턴 분석 및 미션 생성
 def analyze_spending(user_input):
     system_prompt = load_system_prompt()
-    try:
-        response = ollama.generate(
-            model="benedict/linkbricks-llama3.1-korean:8b",
-            prompt=f"{system_prompt}\n사용자 입력: {user_input}",
-            api_url="http://127.0.0.1:11434"
-        )
-        return response.get('response', '분석 결과를 가져오는 데 실패했습니다.')
-    except Exception as e:
-        return f'오류 발생: {str(e)}'
+    response = ollama.generate(
+        model="benedict/linkbricks-llama3.1-korean:8b",
+        prompt=f"{system_prompt}\n사용자 입력: {user_input}"
+    )
+    return response.get('response', '분석 결과를 가져오는 데 실패했습니다.')
 
 # 전송 버튼 클릭 시 분석 실행
 if submit and user_input:
