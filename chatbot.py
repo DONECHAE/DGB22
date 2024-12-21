@@ -42,7 +42,6 @@ def analyze_spending(user_input):
         response = ollama.generate(
             model="benedict/linkbricks-llama3.1-korean:8b",
             prompt=f"{system_prompt}\n사용자 입력: {user_input}",
-            api_url="http://127.0.0.1:11434"
         )
         return response.get('response', '분석 결과를 가져오는 데 실패했습니다.')
     except Exception as e:
